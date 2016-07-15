@@ -3,40 +3,35 @@ import cv2
 import argparse 
 import imutils
 
-#image = cv2.imread("260.jpg")
-
-#Define ranges
-UPPER_BOUND = np.array([180, 255, 255], np.uint8) 
-LOWER_BOUND = np.array([40, 195, 124], np.uint8)
-
-camera = cv2.VideoCapture()
+# Change path/webcam if needed
+#image = cv2.imread("/home/alexl/Pictures/RealFullField/260.jpg")
+cap = cv2.VideoCapture(1)
 
 while True:
-	(grabbed, image) = camera.read()
+	ret, image = cap.read()
 
-	if not grabbed:
+	# Define ranges
+	UPPER_BOUND = np.array([180, 255, 255], np.uint8) 
+	LOWER_BOUND = np.array([40, 195, 124], np.uint8)
+
+	# Convert image to HSV
+	hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+	# Filter out everything that isn't green	
+	filter_image = cv2.inRange(hsv_image, LOWER_BOUND, UPPER_BOUND)
+
+	# Find contours in the image 
+	contours, hierarchy = cv2.findContours(filter_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+	contours = sorted(contours, key = cv2.contourArea, reverse = True)[:3]
+	goalContour = None 
+
+	# Draw the contours on original image
+	cv2.drawContours(image, contours, -1, (0, 0, 255), 3)
+
+	# Show the resulting image
+	cv2.imshow('Image with contours', image)	
+	if cv2.waitKey(1) & 0xFF == ord ('q'):
 		break
 
-	#Filter image based on HSV ranges 
-	image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-	hsv_image = cv2.inRange(image, LOWER_BOUND, UPPER_BOUND)
-
-	(_, cnts, _) = cv2.findContours(hsv_image.copy(), cv2.RETR_EXTERNAL, 
-	cv2.CHAIN_APPROX_SIMPLE)
-	for c in cnts: 
-		peri = cv2.arcLength(c, True)
-		approx = cv2.approxPolyDP(c, 0.01 * peri, True)
-		area = cv2.contourArea(c, True)
-	
-		x, y, w, h = cv2.boundingRect(approx)
-		aspectRatio = w/h
-
-		if area > 400 and aspectRatio >= 1:
-			cv2.drawContours(image, [approx], -1, (0, 0, 255), 4)
-			#store contours in an array idk how to do that
-print area, aspectRatio
-cv2.imshow("Pleeeease work", image)
-cv2.waitKey(0)
-	
-
-
+cap.release()
+cv2.destroyAllWindows()
