@@ -22,16 +22,34 @@ while True:
 
 	# Find contours in the image 
 	contours, hierarchy = cv2.findContours(filter_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+	print "Before area filter, found", len(contours), " contours."
+
 	contours = sorted(contours, key = cv2.contourArea, reverse = True)[:3]
+	print "After area filter, found", len(contours), " contours."
+
 	goalContour = None 
 
-	# Draw the contours on original image
-	cv2.drawContours(image, contours, -1, (0, 0, 255), 3)
+	# Filter out contours on aspect ratio and max width/height
+	for cnt in contours:
+		rect = cv2.boundingRect(cnt)
+		x,y,w,h = rect
+		aspectRatio = float (w)/h
+		#cv2.rectangle(image, (x, y), (x+w, y+h), (0, 0, 255),3 )
+		if (aspectRatio > 1.1) and (w < 1000) and (h < 1000): 
+			goalContour = True
+			print "Found high goal."
+			print cv2.contourArea(cnt)
+			break
+
+	# Draw the resulting contour on original image
+	cv2.drawContours(image, cnt, -1, (0, 0, 255), 3)
 
 	# Show the resulting image
-	cv2.imshow('Image with contours', image)	
+	cv2.imshow('Target detected', image)	
 	if cv2.waitKey(1) & 0xFF == ord ('q'):
 		break
+
+	# TODO: Return NetworkTables values here
 
 cap.release()
 cv2.destroyAllWindows()
