@@ -24,7 +24,7 @@ while True:
 	contours, hierarchy = cv2.findContours(filter_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 	print "Before area filter, found", len(contours), " contours."
 
-	contours = sorted(contours, key = cv2.contourArea, reverse = True)[:3]
+	contours = sorted(contours, key = cv2.contourArea, reverse = True)[:4]
 	print "After area filter, found", len(contours), " contours."
 
 	goalContour = None 
