@@ -50,11 +50,16 @@ while True:
 		rect = cv2.boundingRect(cnt)
 		x,y,w,h = rect
 		aspectRatio = float (w)/h
+		M = cv2.moments(cnt)
+		cX = int(M['m10']/M['m00'])
+		cY = int(M['m01']/M['m00'])
 		#cv2.rectangle(image, (x, y), (x+w, y+h), (0, 0, 255),3 )
 		if (aspectRatio > 1.1) and (w < 1000) and (h < 1000): 
 			goalContour = True
 			print "Found high goal."
-			print cv2.contourArea(cnt)
+			print "Area:", cv2.contourArea(cnt)
+			print "Width: ", w, "Height:", h
+			print "Center X:", cX, "Center Y:", cY
 			break
 
 	cv2.drawContours(image, cnt, -1, (0, 0, 255), 3)
